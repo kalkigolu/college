@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Role Login Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .login-card {
+            transition: all 0.3s ease;
+        }
+        .login-card:hover {
+            transform: translateY(-5px);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .input-group {
+            position: relative;
+        }
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        .input-field {
+            padding-left: 40px;
+        }
+        .role-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        .admin-badge { background: #ef4444; }
+        .faculty-badge { background: #3b82f6; }
+        .student-badge { background: #10b981; }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.error {
+            background: #ef4444;
+        }
+        .notification.success {
+            background: #10b981;
+        }
+        
+        .loading {
+            display: none;
+        }
+        .loading.show {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+                <i class="fas fa-graduation-cap mr-3"></i>
+                Education Portal
+            </h1>
+            <p class="text-blue-100 text-lg">Secure access for administrators, faculty, and students</p>
+        </div>
+
+        <!-- Login Cards Container -->
+        <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            
+            <!-- Admin Login -->
+            <div class="login-card bg-white rounded-2xl shadow-2xl p-8 relative">
+                <div class="role-badge admin-badge">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-shield text-2xl text-red-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Admin Access</h2>
+                    <p class="text-gray-600 mt-2">System administration portal</p>
+                </div>
+                
+                <form id="adminForm" onsubmit="return handleLogin(event, 'admin')">
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="adminUser" 
+                                   class="input-field w-full py-3 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                   placeholder="Admin Username" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="adminPass"
+                                   class="input-field w-full py-3 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                   placeholder="Password" required>
+                        </div>
+                    </div>
+                    <button type="submit" 
+                            class="w-full mt-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-spinner fa-spin loading mr-2"></i>
+                        <span class="button-text">Login as Admin</span>
+                    </button>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <small class="text-gray-500">Demo: admin / admin123</small>
+                </div>
+            </div>
+
+            <!-- Faculty Login -->
+            <div class="login-card bg-white rounded-2xl shadow-2xl p-8 relative">
+                <div class="role-badge faculty-badge">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-tie text-2xl text-blue-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Faculty Portal</h2>
+                    <p class="text-gray-600 mt-2">Teaching staff access</p>
+                </div>
+                
+                <form id="facultyForm" onsubmit="return handleLogin(event, 'faculty')">
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="facultyUser"
+                                   class="input-field w-full py-3 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="Faculty Username" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="facultyPass"
+                                   class="input-field w-full py-3 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="Password" required>
+                        </div>
+                    </div>
+                    <button type="submit"
+                            class="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-spinner fa-spin loading mr-2"></i>
+                        <span class="button-text">Login as Faculty</span>
+                    </button>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <small class="text-gray-500">Demo: faculty / faculty123</small>
+                </div>
+            </div>
+
+            <!-- Student Login -->
+            <div class="login-card bg-white rounded-2xl shadow-2xl p-8 relative">
+                <div class="role-badge student-badge">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-graduate text-2xl text-green-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Student Portal</h2>
+                    <p class="text-gray-600 mt-2">Student dashboard access</p>
+                </div>
+                
+                <form id="studentForm" onsubmit="return handleLogin(event, 'student')">
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <i class="fas fa-id-card input-icon"></i>
+                            <input type="text" id="studentUser"
+                                   class="input-field w-full py-3 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                   placeholder="Student ID or Email" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="studentPass"
+                                   class="input-field w-full py-3 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                   placeholder="Password" required>
+                        </div>
+                    </div>
+                    <button type="submit"
+                            class="w-full mt-6 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-spinner fa-spin loading mr-2"></i>
+                        <span class="button-text">Login as Student</span>
+                    </button>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <small class="text-gray-500">Demo: student / student123</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="mt-16 text-center">
+            <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="text-white">
+                    <i class="fas fa-shield-alt text-3xl mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Secure Access</h3>
+                    <p class="text-blue-100">Multi-layered security with role-based authentication</p>
+                </div>
+                <div class="text-white">
+                    <i class="fas fa-mobile-alt text-3xl mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Mobile Responsive</h3>
+                    <p class="text-blue-100">Access your portal from any device, anywhere</p>
+                </div>
+                <div class="text-white">
+                    <i class="fas fa-clock text-3xl mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">24/7 Availability</h3>
+                    <p class="text-blue-100">Round-the-clock access to educational resources</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        function showNotification(message, type = 'error') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ${type}';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function showLoading(button, show) {
+            const loading = button.querySelector('.loading');
+            const text = button.querySelector('.button-text');
+            
+            if (show) {
+                loading.classList.add('show');
+                text.textContent = 'Authenticating...';
+                button.disabled = true;
+            } else {
+                loading.classList.remove('show');
+                button.disabled = false;
+            }
+        }
+
+        function handleLogin(event, role) {
+            event.preventDefault();
+            
+            const button = event.target.querySelector('button[type="submit"]');
+            const text = button.querySelector('.button-text');
+            
+            showLoading(button, true);
+            
+            // Simulate authentication delay
+            setTimeout(() => {
+                let user, pass, isValid = false, redirectUrl = '';
+                
+                if (role === 'admin') {
+                    user = document.getElementById('adminUser').value;
+                    pass = document.getElementById('adminPass').value;
+                    if (user === "nishusingh3139@gmail.com" && pass === "kalki@3139") {
+                        isValid = true;
+                        redirectUrl = "admin_dash.html";
+                    }
+                    text.textContent = 'Login as Admin';
+                }
+                
+                if (role === 'faculty') {
+                    user = document.getElementById('facultyUser').value;
+                    pass = document.getElementById('facultyPass').value;
+                    if (user === "golu0708@gmail.com" && pass === "golu@3139") {
+                        isValid = true;
+                        redirectUrl = "facultydash.html";
+                    }
+                    text.textContent = 'Login as Faculty';
+                }
+                
+                if (role === 'student') {
+                    user = document.getElementById('studentUser').value;
+                    pass = document.getElementById('studentPass').value;
+                    if (user === "student31390708@gmail.com" && pass === "student@123") {
+                        isValid = true;
+                        redirectUrl = "dashbord.html";
+                    }
+                    text.textContent = 'Login as Student';
+                }
+                
+                showLoading(button, false);
+                
+                if (isValid) {
+                    showNotification('Welcome ${role}! Redirecting to dashboard...', 'success');
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1500);
+                } else {
+                    showNotification('Invalid ${role} credentials. Please try again.', 'error');
+                }
+            }, 1500);
+            
+            return false;
+        }
+
+        // Add smooth scrolling and form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add floating animation to cards
+            const cards = document.querySelectorAll('.login-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = '${index * 0.2}s';
+            });
+
+            // Add form input animations
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey) {
+                switch(e.key) {
+                    case '1':
+                        document.getElementById('adminUser').focus();
+                        break;
+                    case '2':
+                        document.getElementById('facultyUser').focus();
+                        break;
+                    case '3':
+                        document.getElementById('studentUser').focus();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
